@@ -1,0 +1,15 @@
+{
+  "playerId": 1001,
+  "data": {
+    "id": 7001,
+    "type": "PLACE",
+    "amount": 2000000000,
+    "realAmount": 2000000000,
+    "reference": null,
+    "round": {
+      "playerId": 1001,
+      "currency": "USDT",
+      "createdAt": "2026-10-01T09:30:00Z"
+    }
+  }
+}

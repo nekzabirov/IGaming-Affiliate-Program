@@ -1,0 +1,206 @@
+@import 'tailwindcss';
+@import './theme.css';
+
+@layer base {
+  html {
+    background: var(--color-page);
+    color: var(--color-text);
+    color-scheme: dark;
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Removes the tap delay and double-tap zoom without forbidding pinch zoom */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    /* A 1-16 px overflow would let the whole page, fixed bars included, slide sideways under a thumb */
+    overflow-x: clip;
+  }
+
+  body {
+    min-height: 100dvh;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: rgba(140, 82, 255, 0.45);
+    color: var(--color-text);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Tailwind 4 leaves buttons on the arrow; in a web cabinet the hand is what tells a tile it can be pressed */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+
+  /* Date inputs: the native calendar glyph follows the dark scheme but needs the brand's faint ink */
+  input[type='date']::-webkit-calendar-picker-indicator {
+    opacity: 0.6;
+    cursor: pointer;
+  }
+}
+
+/* Headlines: the wordmark's voice, Exo 2 black italic leaning a further 6° so the letters stand at the
+   mark's angle. Only page titles and the hero number speak in it; everything else is Manrope.
+   The box hugs its words and keeps room on its right for the lean (tan 6° of a line ≈ 0.12 em), so the
+   top of the last letter never sticks out of the column it sits in */
+@utility headline {
+  display: inline-block;
+  max-width: calc(100% - 0.12em);
+  margin-right: 0.12em;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.005em;
+  transform: skewX(-6deg);
+  transform-origin: 0 100%;
+}
+
+/* Amounts, rates and ids: digits of one width, so columns of numbers line up */
+@utility num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The small caps label of an instrument: above a value, a field or a group */
+@utility micro-label {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+/* A surface over the page: the panel with a hairline, the portal's default container */
+@utility surface {
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-line-soft);
+  border-radius: var(--radius-lg);
+}
+
+/* Glass: KPI instruments and the cards that sit on the dashboard art. The top edge catches the light,
+   the body lets the art through */
+@utility glass {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01) 40%),
+    rgba(25, 22, 35, 0.72);
+  border: 1px solid var(--color-line-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    var(--shadow-card);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border-radius: var(--radius-lg);
+}
+
+/* The live or selected instrument: a lime hairline with the light on its edge */
+@utility glass-signal {
+  border-color: var(--color-signal-line);
+  box-shadow:
+    inset 0 1px 0 rgba(198, 255, 0, 0.16),
+    var(--shadow-signal);
+}
+
+/* The active indicator: a 3x20 lime bar leaning at the mark's angle, an echo of the seam between its
+   halves. Sized by the caller when it marks something smaller than a nav row */
+@utility seam {
+  display: block;
+  width: 3px;
+  height: 20px;
+  border-radius: 1px;
+  background-color: var(--color-signal);
+  transform: skewX(calc(-1 * var(--slant)));
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Room the fixed bottom tab bar takes from a phone screen */
+@utility pb-tabbar {
+  padding-bottom: calc(env(safe-area-inset-bottom) + var(--spacing-tabbar) + 24px);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* A control drawn smaller than a fingertip still answers a 44 px tall touch: the hit box grows invisibly
+   above and below the visible shape */
+@utility hit-area {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -4px 0;
+  }
+}
+
+/* Thin, dark scrollbars for the few inner scrollers (wide tables, the daily table) */
+@utility scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
+
+/* Pressable things answer the finger at once: a slight squeeze, released on the brand's ease-out */
+@utility pressable {
+  transition-property: scale, background-color, border-color, color, box-shadow, opacity;
+  transition-duration: var(--transition-duration-fast);
+  transition-timing-function: var(--ease-default);
+  &:active:not(:disabled) {
+    scale: 0.97;
+  }
+}
+
+/* Sections of a screen rise in once, in order: --rise is the section's place in that order */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@utility rise {
+  animation: rise-in 320ms var(--ease-default) backwards;
+  animation-delay: calc(var(--rise, 0) * 45ms);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Fewer and gentler: movement goes, the fades that explain a change stay */
+  .rise {
+    animation: fade-in 200ms linear backwards;
+    animation-delay: 0ms;
+  }
+  .pressable:active {
+    scale: 1;
+  }
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}

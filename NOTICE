@@ -1,0 +1,30 @@
+IGaming Affiliate Program
+Copyright 2026 Nekbakht Zabirov
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party material
+--------------------
+
+1. Fonts, bundled with the partner cabinet (frontend/public/fonts/), latin and latin-ext subsets in WOFF2:
+   - Exo 2, Black Italic          exo2-italic-900-latin.woff2, exo2-italic-900-latin-ext.woff2
+                                  Copyright 2013 The Exo 2 Project Authors (https://github.com/NDISCOVER/Exo-2.0)
+   - Manrope, variable 400-800    manrope-v2-latin.woff2, manrope-v2-latin-ext.woff2
+                                  Copyright 2018 The Manrope Project Authors (https://github.com/sharanda/manrope)
+   - JetBrains Mono               jetbrains-mono-v2-latin.woff2, jetbrains-mono-v2-latin-ext.woff2
+                                  Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)
+   License: SIL Open Font License, Version 1.1 (see LICENSES/OFL-1.1.txt).
+
+2. Dependencies (Gradle, npm) are fetched at build time and remain under their own licenses; see
+   build.gradle.kts, gradle/libs.versions.toml and frontend/package-lock.json for the exact set.
+
+3. src/main/proto/currency/v1/currency.proto is the contract of Currency-Exchange-Service
+   (https://github.com/nekzabirov/Currency-Exchange-Service), Copyright 2026 Nekbakht Zabirov, Apache-2.0.
+
+Brand
+-----
+
+The name, logo and icons (frontend/src/brand.ts, frontend/src/assets/brand/, the icons in frontend/public/) and
+the illustrations in frontend/src/assets/art/ identify a deployment, not the software: replace them with your own.
+The published repository ships neutral placeholders made for it, under this project's license, and no
+illustrations.

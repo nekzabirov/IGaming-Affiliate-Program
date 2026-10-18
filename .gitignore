@@ -1,0 +1,13 @@
+.gradle/
+.kotlin/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+frontend/node_modules/
+# Built by the CI frontend job (or `npm run build` locally) and sealed into the jar; never committed.
+src/main/resources/static/
+
+.env
+
+*.iml
+.idea/

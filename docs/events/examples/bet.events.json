@@ -1,0 +1,15 @@
+{
+  "playerId": 1001,
+  "data": {
+    "id": 8001,
+    "type": "BET",
+    "amount": 10000000000,
+    "realAmount": 10000000000,
+    "reference": null,
+    "bet": {
+      "playerId": 1001,
+      "currency": "USDT",
+      "createdAt": "2026-10-01T09:40:00Z"
+    }
+  }
+}

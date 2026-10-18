@@ -1,0 +1,18 @@
+{
+  "playerId": 1001,
+  "data": {
+    "id": 5001,
+    "type": "CREDIT",
+    "status": "SUCCESS",
+    "amount": 50000000000,
+    "currency": "USDT",
+    "updatedAt": "2026-10-01T09:20:00Z",
+    "player": {
+      "id": 1001,
+      "affiliateTag": "partner:summer",
+      "affiliateAttribution": { "click_id": "8f3k2a" },
+      "country": "DE",
+      "createdAt": "2026-10-01T09:15:00Z"
+    }
+  }
+}

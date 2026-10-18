@@ -1,0 +1,20 @@
+# Everything else is managed by the Spring Boot BOM, protoc and the gRPC code generator included (build.gradle.kts).
+# This file is also part of the CI cache key, so it has to exist even where it pins little.
+[versions]
+# Boot 4.1.1 manages kotlin.version 2.3.21.
+kotlin = "2.3.21"
+spring-boot = "4.1.1"
+spring-dependency-management = "1.1.7"
+protobuf-plugin = "0.10.0"
+# 9.x is the line built on Jackson 3, the JSON library Boot 4 ships.
+logstash-encoder = "9.0"
+
+[libraries]
+logstash-encoder = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logstash-encoder" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }

@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/nekzabirov/IGaming-Affiliate-Program/blob/main/docs/events/bet.events.schema.json",
+  "title": "bet.events",
+  "description": "One leg of money on a sportsbook bet, on the casino events exchange (CASINO_EXCHANGE, default casino.events). The envelope's `playerId` must be a positive JSON integer (never quoted, never fractional) equal to `data.bet.playerId`; JSON Schema cannot express that equality, the consumer checks it and dead-letters a mismatch. Unknown fields anywhere are ignored.",
+  "type": "object",
+  "required": [
+    "playerId",
+    "data"
+  ],
+  "properties": {
+    "playerId": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "The player the fact is about; equals `data.bet.playerId`."
+    },
+    "data": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "amount",
+        "realAmount",
+        "bet"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "The leg's id; the idempotency key is bet:<id>."
+        },
+        "type": {
+          "type": "string",
+          "description": "BET (a stake) and ROLLBACK are acted on; any other string (WIN, a value added later) is acknowledged without effect."
+        },
+        "amount": {
+          "type": "integer",
+          "description": "Signed int64 nano units: the whole leg, real and lock money. The postback payout of a BET."
+        },
+        "realAmount": {
+          "type": "integer",
+          "description": "Signed int64 nano units of the player's own (real) money in this leg. Lock and bonus money (`lockAmount`, `bonusAmount`) is never read. Only a positive amount counts."
+        },
+        "reference": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "id",
+            "type"
+          ],
+          "additionalProperties": true,
+          "description": "On a ROLLBACK, the leg it reverses (the whole leg may be sent; only these fields are read). Other types may carry one too; it is read only on a ROLLBACK.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The reversed leg's id."
+            },
+            "type": {
+              "type": "string",
+              "description": "The reversed leg's type. Only a rollback of a stake (PLACE for a spin, BET for a bet) reverses anything."
+            }
+          }
+        },
+        "bet": {
+          "type": "object",
+          "required": [
+            "playerId",
+            "currency",
+            "createdAt"
+          ],
+          "additionalProperties": true,
+          "description": "The bet the leg belongs to.",
+          "properties": {
+            "playerId": {
+              "type": "integer",
+              "description": "The player.",
+              "minimum": 1
+            },
+            "currency": {
+              "type": "string",
+              "description": "Currency code of the amounts; anything but PARTNER_CURRENCY is converted by Currency-Exchange-Service."
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Its UTC day is the day the leg's turnover counts on; a ROLLBACK is dated the same way."
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/nekzabirov/IGaming-Affiliate-Program/blob/main/docs/events/invoice.events.schema.json",
+  "title": "invoice.events",
+  "description": "An invoice (deposit, withdrawal, refund) on creation and on every status change, on the player events exchange (PAM_EXCHANGE, default pam.events). Only `type` CREDIT with `status` SUCCESS and a positive `amount` is acted on. The envelope's `playerId` must be a positive JSON integer (never quoted, never fractional) equal to `data.player.id`; JSON Schema cannot express that equality, the consumer checks it and dead-letters a mismatch. Unknown fields anywhere are ignored.",
+  "type": "object",
+  "required": [
+    "playerId",
+    "data"
+  ],
+  "properties": {
+    "playerId": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "The player the fact is about; equals `data.player.id`."
+    },
+    "data": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "status",
+        "amount",
+        "currency",
+        "updatedAt",
+        "player"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "The invoice id; the idempotency key is invoice:<id>."
+        },
+        "type": {
+          "type": "string",
+          "description": "CREDIT (a deposit) is acted on; any other string (PAYOUT, REFUND, a value added later) is acknowledged without effect. Never a number or null."
+        },
+        "status": {
+          "type": "string",
+          "description": "SUCCESS (the money landed) is acted on; any other string (PENDING, PROCESSING, REJECTED, a value added later) is acknowledged without effect. Never a number or null."
+        },
+        "amount": {
+          "type": "integer",
+          "description": "Signed int64 nano units (1e-9) of `currency`. Only a positive amount counts."
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency code of `amount`. Anything but PARTNER_CURRENCY is converted by Currency-Exchange-Service; one it does not know dead-letters the fact."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the invoice reached this status; its UTC day is the day the deposit counts on."
+        },
+        "player": {
+          "type": "object",
+          "required": [
+            "id",
+            "createdAt"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The player's id.",
+              "minimum": 1
+            },
+            "affiliateTag": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The affiliate tag the brand site stored from `?affiliate=`. `partner:<identity>` (prefix in any letter case, identity read in lower case) names a company of this program; any other value, null or absence is another program's player and is acknowledged without effect."
+            },
+            "affiliateAttribution": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Free-form attribution keys the brand site stored at sign-up, string values only. `click_id` is passed to the partner's tracker when it matches ^[A-Za-z0-9._~-]{1,128}$; the whole object is kept on the referral. Absent, null or {} when there are none."
+            },
+            "country": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "ISO 3166-1 alpha-2 country code, any letter case. Anything that is not two letters is stored as unknown."
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "When the player registered: the referral's registration time and the UTC day it counts on."
+            }
+          },
+          "description": "The invoice's owner as of the invoice. Used to attribute the player when this deposit is handled before the player's register.events."
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,8 @@
+# Build outputs and caches never belong in the build context; the Dockerfile builds everything from source.
+.git
+.gradle
+.kotlin
+build
+frontend/node_modules
+src/main/resources/static
+.env

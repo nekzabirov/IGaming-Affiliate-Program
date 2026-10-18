@@ -1,0 +1,154 @@
+# The whole stack on one machine: PostgreSQL, RabbitMQ, Currency-Exchange-Service and the affiliate program.
+#
+#   docker compose up --build -d
+#
+#   http://localhost:8080          the partner cabinet (sign up, then make yourself an admin, see README)
+#   http://localhost:15680         RabbitMQ management (guest / guest)
+#   http://localhost:9464/metrics  Prometheus metrics, /health the health check
+#
+# Publish sample events: scripts/publish-sample-events.sh (docs/wiki/Events.md).
+#
+# The host ports match .env.example, so `docker compose up -d postgres rabbitmq` also serves an app run from
+# Gradle (docs/wiki/Development.md).
+#
+# Currency-Exchange-Service is built from its public repository. Its seed registers EUR, UAH, USDT, BTC and USDC;
+# conversions need rates, which its `sync` job loads (fiat rates need an OpenExchangeRates app id):
+#
+#   OPENEXCHANGE_APP_ID=... docker compose run --rm currency-sync
+#
+# Events already in PARTNER_CURRENCY (USDT here, as in the sample events) never call it.
+
+name: igaming-affiliate-program
+
+# Each image is built by one service only (`migrate`, `currency-migrate`); the others run it as built. Two services
+# building the same tag at once race for it.
+x-app: &app
+  image: igaming-affiliate-program:local
+  pull_policy: never
+  environment: &app-env
+    DB_URL: jdbc:postgresql://postgres:5432
+    DATABASE_NAME: affiliate
+    DB_USERNAME: postgres
+    DB_PASSWORD: postgres
+    RABBIT_HOST: rabbitmq
+    RABBIT_PORT: "5672"
+    RABBIT_USER: guest
+    RABBIT_PASSWORD: guest
+    CURRENCY_GRPC_HOST: currency
+    CURRENCY_GRPC_PORT: "9090"
+    CURRENCY_GRPC_PLAINTEXT: "true"
+    PARTNER_CURRENCY: USDT
+    SITE_URL: http://localhost:3000
+    # Plain http on localhost: a browser never sends a Secure cookie back over it.
+    SESSION_COOKIE_SECURE: "false"
+
+x-currency: &currency
+  image: currency-exchange-service:local
+  pull_policy: never
+  environment:
+    DATABASE_URL: postgres://currency:currency@currency-db:5432/currency
+    RUST_LOG: info
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      # The `schema` launcher migrates an existing database and never creates one.
+      POSTGRES_DB: affiliate
+    ports: ["55450:5432"]
+    volumes: ["affiliate-db:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d affiliate"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "55680:5672"
+      - "15680:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  currency-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: currency
+      POSTGRES_PASSWORD: currency
+      POSTGRES_DB: currency
+    volumes: ["currency-db:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U currency -d currency"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  currency-migrate:
+    <<: *currency
+    pull_policy: build
+    build:
+      context: https://github.com/nekzabirov/Currency-Exchange-Service.git#main
+    command: ["migrate"]
+    restart: "no"
+    depends_on:
+      currency-db: {condition: service_healthy}
+
+  currency-seed:
+    <<: *currency
+    command: ["seed"]
+    restart: "no"
+    depends_on:
+      currency-migrate: {condition: service_completed_successfully}
+
+  currency:
+    <<: *currency
+    environment:
+      DATABASE_URL: postgres://currency:currency@currency-db:5432/currency
+      GRPC_PORT: "9090"
+      RUST_LOG: info
+    ports: ["59090:9090"]
+    depends_on:
+      currency-seed: {condition: service_completed_successfully}
+
+  # One-off rate sync: `docker compose run --rm currency-sync`.
+  currency-sync:
+    <<: *currency
+    command: ["sync"]
+    restart: "no"
+    profiles: ["manual"]
+    environment:
+      DATABASE_URL: postgres://currency:currency@currency-db:5432/currency
+      RUST_LOG: info
+      OPENEXCHANGE_APP_ID: ${OPENEXCHANGE_APP_ID:-}
+    depends_on:
+      currency-seed: {condition: service_completed_successfully}
+
+  migrate:
+    <<: *app
+    pull_policy: build
+    build:
+      context: .
+    command: ["schema"]
+    restart: "no"
+    depends_on:
+      postgres: {condition: service_healthy}
+
+  app:
+    <<: *app
+    ports:
+      - "8080:8080"
+      - "127.0.0.1:9464:9464"
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      rabbitmq: {condition: service_healthy}
+      currency: {condition: service_started}
+
+volumes:
+  affiliate-db:
+  currency-db:
