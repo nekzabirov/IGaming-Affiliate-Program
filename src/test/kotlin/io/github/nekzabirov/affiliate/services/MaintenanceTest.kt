@@ -52,7 +52,7 @@ class MaintenanceTest : IntegrationTest() {
         val login = uniqueLogin("vera")
         api.register(login)
         insertCompany("sport", "REVSHARE_TURNOVER", "5", accountId(login))
-        registrations.handle(Facts.register(4001, "partner:sport").toByteArray())
+        registrations.handle(Facts.register(4001, "sport").toByteArray())
         // 400 UAH is 10 USDT at the fake rate, and 5% of it is the partner's.
         bets.handle(Facts.bet(id = 901, playerId = 4001, type = "BET", realAmount = 400 * NANO).toByteArray())
         jdbc.sql("UPDATE processed_fact SET created_at = now() - interval '40 days' WHERE key = 'bet:901'").update()

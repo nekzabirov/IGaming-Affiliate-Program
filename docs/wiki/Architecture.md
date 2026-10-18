@@ -48,7 +48,7 @@ All money is a signed `BIGINT` of nano units (1e-9) of `PARTNER_CURRENCY`; REST 
 |---|---|
 | `account` | partners and admins: login, bcrypt hash, role, `active`, the one balance of all their companies |
 | `session` | SHA-256 of each session token (the raw token lives only in the `ap_session` cookie), expiry |
-| `company` | identity (the tag is `partner:<identity>`), owner, type (`CPA`, `REVSHARE_DEPOSIT`, `REVSHARE_TURNOVER`), amount or percent, status (`IN_REVIEW`, `ACTIVE`, `DISABLED`) |
+| `company` | identity (the player's affiliate tag itself), owner, type (`CPA`, `REVSHARE_DEPOSIT`, `REVSHARE_TURNOVER`), amount or percent, status (`IN_REVIEW`, `ACTIVE`, `DISABLED`) |
 | `postback` | a company's tracker URLs (at most 10) and the outcome of the last attempt |
 | `referral` | a player attributed to a company: click id, attribution, country, registration and first deposit |
 | `commission` | the earnings ledger, unique per source |

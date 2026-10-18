@@ -29,7 +29,6 @@ export interface Config {
   currency: string
   supportUrl: string | null
   siteUrl: string
-  tagPrefix: string
   clickParam: string
   cpaMinDeposit: Decimal
   payoutNetworks: string[]

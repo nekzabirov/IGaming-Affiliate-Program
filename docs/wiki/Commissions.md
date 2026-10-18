@@ -9,15 +9,15 @@ attributes players and earns.
 
 The company's link sends players to the brand site:
 
-    <SITE_URL>/?affiliate=partner:<identity>&click_id={subid}
+    <SITE_URL>/?affiliate=<identity>&click_id={subid}
 
 The brand site (your platform, not this app) must store `affiliate` as the player's affiliate tag and `click_id`
 in the player's attribution, and publish them in `register.events` and `invoice.events` ([Events](Events)).
 `{subid}` is Keitaro's macro for its click id.
 
 A player is attributed **once and for good**, by whichever of their registration and first deposit is handled
-first. A `partner:` tag that is refused at that moment (no such company, not ACTIVE, a blocked partner) is
-remembered as refused, so a company approved later never claims the player.
+first. The tag is the company's identity itself, with no prefix. The tag of a company refused at that moment (not
+ACTIVE, a blocked partner) is remembered as refused, so a company approved later never claims the player.
 
 ## Commission types
 

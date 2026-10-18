@@ -79,7 +79,7 @@ class AccrualTest : IntegrationTest() {
     fun `a partner's tag attributes the player to the active company, keeps the click id and sends a lead after the commit`() {
         val company = company("summer", "CPA", "25")
 
-        register(Facts.register(1001, "partner:summer", mapOf("click_id" to "8f3k2a", "fbc" to "fb.1.17593.IwAR"), country = "ua"))
+        register(Facts.register(1001, "summer", mapOf("click_id" to "8f3k2a", "fbc" to "fb.1.17593.IwAR"), country = "ua"))
 
         val referral = referral(1001)
         assertThat(referral.companyId).isEqualTo(company)
@@ -100,10 +100,10 @@ class AccrualTest : IntegrationTest() {
     }
 
     @Test
-    fun `the prefix is read in any letter case and the identity in lower case`() {
+    fun `the tag is the identity, read in any letter case`() {
         val company = company("summer", "CPA", "25")
 
-        register(Facts.register(1002, "PARTNER:Summer"))
+        register(Facts.register(1002, "Summer"))
 
         assertThat(referral(1002).companyId).isEqualTo(company)
     }
@@ -118,12 +118,13 @@ class AccrualTest : IntegrationTest() {
         company("blocked", "CPA", "25", owner = blocked)
         jdbc.sql("UPDATE account SET active = false WHERE id = :id").param("id", blocked).update()
 
-        listOf(null, "referal:5", "summer", "partner:", "partner:nobody", "partner:review", "partner:off", "partner:blocked")
+        listOf(null, "referal:5", "", "  ", "nobody", "review", "off", "blocked")
             .forEachIndexed { index, tag -> register(Facts.register(2000L + index, tag)) }
 
         assertThat(count("referral")).isZero()
-        // A partner tag is refused for good, so no later fact attributes the player; other programmes' tags leave nothing.
-        assertThat(facts()).containsExactlyInAnyOrder("register:2003", "register:2004", "register:2005", "register:2006", "register:2007")
+        // The tag of a company it refuses is refused for good, so no later fact attributes the player; a tag that names
+        // no company leaves nothing.
+        assertThat(facts()).containsExactlyInAnyOrder("register:2005", "register:2006", "register:2007")
         assertThat(postbacks.dispatched).isEmpty()
     }
 
@@ -131,7 +132,7 @@ class AccrualTest : IntegrationTest() {
     fun `a click id no tracker would issue is dropped, and the player is attributed all the same`() {
         company("summer", "CPA", "25")
 
-        register(Facts.register(1003, "partner:summer", mapOf("click_id" to "not a click id")))
+        register(Facts.register(1003, "summer", mapOf("click_id" to "not a click id")))
 
         assertThat(referral(1003).clickId).isNull()
         assertThat(postbacks.dispatched.single().event.clickId).isNull()
@@ -140,7 +141,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `a registration delivered twice attributes once and tells the trackers once`() {
         company("summer", "CPA", "25")
-        val fact = Facts.register(1004, "partner:summer", mapOf("click_id" to "abc"))
+        val fact = Facts.register(1004, "summer", mapOf("click_id" to "abc"))
 
         register(fact)
         register(fact)
@@ -152,7 +153,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `the first deposit at the CPA minimum pays the CPA once, and later deposits count without paying more`() {
         val company = company("summer", "CPA", "25")
-        register(Facts.register(1010, "partner:summer", mapOf("click_id" to "c1")))
+        register(Facts.register(1010, "summer", mapOf("click_id" to "c1")))
         postbacks.dispatched.clear()
 
         // 400 UAH is 10 USDT: exactly CPA_MIN_DEPOSIT.
@@ -183,7 +184,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `a first deposit below the CPA minimum is recorded and never pays, not even after a bigger second one`() {
         company("summer", "CPA", "25")
-        register(Facts.register(1011, "partner:summer"))
+        register(Facts.register(1011, "summer"))
         postbacks.dispatched.clear()
 
         // 399.96 UAH is 9.999 USDT, a tenth of a cent short.
@@ -203,7 +204,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `REVSHARE_DEPOSIT pays its percent of every deposit, rounded half up to the nano`() {
         val company = company("share", "REVSHARE_DEPOSIT", "12.5")
-        register(Facts.register(1012, "partner:share"))
+        register(Facts.register(1012, "share"))
         postbacks.dispatched.clear()
 
         invoice(Facts.invoice(id = 521, playerId = 1012, amount = uah("400")))
@@ -228,7 +229,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `an invoice delivered twice counts once`() {
         company("summer", "CPA", "25")
-        register(Facts.register(1013, "partner:summer"))
+        register(Facts.register(1013, "summer"))
         postbacks.dispatched.clear()
         val fact = Facts.invoice(id = 531, playerId = 1013, amount = uah("400"))
 
@@ -244,7 +245,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `only a landed deposit of a referral counts`() {
         company("summer", "REVSHARE_DEPOSIT", "10")
-        register(Facts.register(1014, "partner:summer"))
+        register(Facts.register(1014, "summer"))
         postbacks.dispatched.clear()
 
         invoice(Facts.invoice(id = 541, playerId = 9999, amount = uah("400")))
@@ -266,7 +267,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `values a publisher adds later are acknowledged without effect, exactly like the ones the app does not act on`() {
         val company = company("spins", "REVSHARE_TURNOVER", "5")
-        register(Facts.register(1016, "partner:spins"))
+        register(Facts.register(1016, "spins"))
         spin(Facts.spin(id = 631, playerId = 1016, type = "PLACE", realAmount = uah("200")))
         bet(Facts.bet(id = 731, playerId = 1016, type = "BET", realAmount = uah("400")))
         postbacks.dispatched.clear()
@@ -294,7 +295,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `a referral's deposits count only while the company is active and its partner is not blocked`() {
         val company = company("summer", "CPA", "25")
-        register(Facts.register(1015, "partner:summer"))
+        register(Facts.register(1015, "summer"))
         postbacks.dispatched.clear()
         val deposit = Facts.invoice(id = 551, playerId = 1015, amount = uah("400"))
 
@@ -319,7 +320,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `real-money stakes add turnover and the turnover share, while lock, bonus, SETTLE and WIN never earn`() {
         val company = company("spins", "REVSHARE_TURNOVER", "5")
-        register(Facts.register(1020, "partner:spins"))
+        register(Facts.register(1020, "spins"))
         postbacks.dispatched.clear()
 
         // 200 UAH of own money is 5 USDT; the lock and bonus parts of the same stake are not the player's.
@@ -349,7 +350,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `a rollback takes back exactly what its stake added, whatever the terms and the status are by then`() {
         val company = company("spins", "REVSHARE_TURNOVER", "5")
-        register(Facts.register(1021, "partner:spins"))
+        register(Facts.register(1021, "spins"))
         spin(Facts.spin(id = 611, playerId = 1021, type = "PLACE", realAmount = uah("200")))
         bet(Facts.bet(id = 711, playerId = 1021, type = "BET", realAmount = uah("400")))
         spin(Facts.spin(id = 612, playerId = 1021, type = "PLACE", realAmount = uah("40"), createdAt = "2026-09-18T00:00:01Z"))
@@ -381,7 +382,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `a rollback reverses once, only a stake that was counted, and voids one that was not`() {
         val company = company("spins", "REVSHARE_TURNOVER", "5")
-        register(Facts.register(1022, "partner:spins"))
+        register(Facts.register(1022, "spins"))
         spin(Facts.spin(id = 621, playerId = 1022, type = "PLACE", realAmount = uah("200")))
         bet(Facts.bet(id = 721, playerId = 1022, type = "BET", realAmount = uah("400")))
         val rollback = Facts.spin(id = 622, playerId = 1022, type = "ROLLBACK", realAmount = uah("200"), reference = Facts.spinLeg(621, 1022, "PLACE", uah("200")))
@@ -410,7 +411,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `a rollback handled before its stake keeps that stake from ever counting`() {
         company("spins", "REVSHARE_TURNOVER", "5")
-        register(Facts.register(1031, "partner:spins"))
+        register(Facts.register(1031, "spins"))
 
         // The stakes wait in the dead queue, or in the other pod's prefetch, while their rollbacks are handled.
         spin(Facts.spin(id = 652, playerId = 1031, type = "ROLLBACK", realAmount = uah("200"), reference = Facts.spinLeg(651, 1031, "PLACE", uah("200"))))
@@ -433,7 +434,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `a rollback racing its stake on another pod waits for the stake's commit and then takes it back`() {
         company("spins", "REVSHARE_TURNOVER", "5")
-        register(Facts.register(1032, "partner:spins"))
+        register(Facts.register(1032, "spins"))
         val otherPod = Executors.newSingleThreadExecutor()
         try {
             val rollback = checkNotNull(
@@ -471,7 +472,7 @@ class AccrualTest : IntegrationTest() {
                 id = 595,
                 playerId = 1040,
                 amount = uah("400"),
-                playerTag = "partner:summer",
+                playerTag = "summer",
                 playerAttribution = mapOf("click_id" to "late1"),
                 playerCreatedAt = "2026-09-16T22:00:00Z",
             ),
@@ -490,7 +491,7 @@ class AccrualTest : IntegrationTest() {
         )
         assertThat(postbacks.dispatched).noneMatch { it.insideTransaction }
 
-        register(Facts.register(1040, "partner:summer", mapOf("click_id" to "late1"), createdAt = "2026-09-16T22:00:00Z"))
+        register(Facts.register(1040, "summer", mapOf("click_id" to "late1"), createdAt = "2026-09-16T22:00:00Z"))
 
         assertThat(count("referral")).isEqualTo(1)
         assertThat(facts()).containsExactlyInAnyOrder("register:1040", "invoice:595")
@@ -501,15 +502,15 @@ class AccrualTest : IntegrationTest() {
     fun `whichever of the registration and the first deposit comes first decides, and a refused tag stays refused`() {
         val refused = company("summer", "CPA", "25", status = "IN_REVIEW")
         val later = company("autumn", "CPA", "25", status = "DISABLED")
-        register(Facts.register(1041, "partner:summer"))
-        invoice(Facts.invoice(id = 596, playerId = 1042, amount = uah("400"), playerTag = "partner:autumn"))
+        register(Facts.register(1041, "summer"))
+        invoice(Facts.invoice(id = 596, playerId = 1042, amount = uah("400"), playerTag = "autumn"))
         setStatus(refused, "ACTIVE")
         setStatus(later, "ACTIVE")
 
         // An approval afterwards claims neither player: not through a deposit, nor through a registration replayed.
-        invoice(Facts.invoice(id = 597, playerId = 1041, amount = uah("400"), playerTag = "partner:summer"))
-        register(Facts.register(1042, "partner:autumn"))
-        invoice(Facts.invoice(id = 598, playerId = 1042, amount = uah("400"), playerTag = "partner:autumn"))
+        invoice(Facts.invoice(id = 597, playerId = 1041, amount = uah("400"), playerTag = "summer"))
+        register(Facts.register(1042, "autumn"))
+        invoice(Facts.invoice(id = 598, playerId = 1042, amount = uah("400"), playerTag = "autumn"))
 
         assertThat(count("referral")).isZero()
         assertThat(count("activity_daily")).isZero()
@@ -522,8 +523,8 @@ class AccrualTest : IntegrationTest() {
     fun `stakes of CPA and REVSHARE_DEPOSIT companies count turnover and earn nothing, and so do their rollbacks`() {
         company("cpa", "CPA", "25")
         company("share", "REVSHARE_DEPOSIT", "30")
-        register(Facts.register(1023, "partner:cpa"))
-        register(Facts.register(1024, "partner:share"))
+        register(Facts.register(1023, "cpa"))
+        register(Facts.register(1024, "share"))
 
         spin(Facts.spin(id = 631, playerId = 1023, type = "PLACE", realAmount = uah("200")))
         bet(Facts.bet(id = 731, playerId = 1024, type = "BET", realAmount = uah("400")))
@@ -538,7 +539,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `a stake delivered twice counts once`() {
         company("spins", "REVSHARE_TURNOVER", "5")
-        register(Facts.register(1025, "partner:spins"))
+        register(Facts.register(1025, "spins"))
         val stake = Facts.bet(id = 741, playerId = 1025, type = "BET", realAmount = uah("400"))
 
         bet(stake)
@@ -552,7 +553,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `a reversal may leave the balance negative once the commission was paid out`() {
         company("spins", "REVSHARE_TURNOVER", "5")
-        register(Facts.register(1026, "partner:spins"))
+        register(Facts.register(1026, "spins"))
         spin(Facts.spin(id = 641, playerId = 1026, type = "PLACE", realAmount = uah("200")))
         setBalance(login, 0)
 
@@ -564,7 +565,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `when the currency service refuses, the fact fails, nothing is written, and a later delivery counts it`() {
         company("summer", "CPA", "25")
-        register(Facts.register(1027, "partner:summer"))
+        register(Facts.register(1027, "summer"))
         postbacks.dispatched.clear()
         val deposit = Facts.invoice(id = 571, playerId = 1027, amount = uah("400"))
         currency.failNext(Status.FAILED_PRECONDITION, "RATE_MISSING")
@@ -583,7 +584,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `a partner-currency fact is taken as it is, without asking the currency service`() {
         company("summer", "CPA", "25")
-        register(Facts.register(1028, "partner:summer"))
+        register(Facts.register(1028, "summer"))
 
         invoice(Facts.invoice(id = 581, playerId = 1028, amount = usdt("12.34"), currency = "USDT"))
 
@@ -594,7 +595,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `a fact whose envelope names another player than its data is refused and changes nothing`() {
         company("summer", "CPA", "25")
-        register(Facts.register(1029, "partner:summer"))
+        register(Facts.register(1029, "summer"))
         val mismatched = Facts.invoice(id = 591, playerId = 1029, amount = uah("400")).replaceFirst("\"playerId\": 1029", "\"playerId\": 1030")
 
         assertThatThrownBy { invoice(mismatched) }.isInstanceOf(MalformedEventException::class.java)
@@ -604,7 +605,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `the postbacks are the Keitaro requests a tracker expects, in euros`() {
         company("summer", "CPA", "25")
-        register(Facts.register(1030, "partner:summer", mapOf("click_id" to "8f3k2a")))
+        register(Facts.register(1030, "summer", mapOf("click_id" to "8f3k2a")))
         invoice(Facts.invoice(id = 1001, playerId = 1030, amount = uah("400")))
         invoice(Facts.invoice(id = 1002, playerId = 1030, amount = uah("400")))
         spin(Facts.spin(id = 1003, playerId = 1030, type = "PLACE", realAmount = uah("20"), bonusAmount = uah("20")))
@@ -629,7 +630,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `a CPA of 0 records the first deposit and tells the trackers of every deposit, with no ledger line`() {
         val company = company("gift", "CPA", "0")
-        register(Facts.register(1050, "partner:gift", mapOf("click_id" to "g1")))
+        register(Facts.register(1050, "gift", mapOf("click_id" to "g1")))
 
         invoice(Facts.invoice(id = 801, playerId = 1050, amount = uah("400")))
         invoice(Facts.invoice(id = 802, playerId = 1050, amount = uah("800")))
@@ -651,7 +652,7 @@ class AccrualTest : IntegrationTest() {
         // An amount set afterwards pays the first deposits still to come; this player's was made under 0.
         setAmount(company, "25")
         invoice(Facts.invoice(id = 803, playerId = 1050, amount = uah("400")))
-        register(Facts.register(1051, "partner:gift"))
+        register(Facts.register(1051, "gift"))
         invoice(Facts.invoice(id = 804, playerId = 1051, amount = uah("400")))
 
         assertThat(commissions()).containsExactly(Commission("cpa:1051", "CPA", usdt("25"), Facts.DAY, company))
@@ -661,7 +662,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `a REVSHARE_DEPOSIT of 0 percent counts every deposit and tells the trackers of each, with no ledger line`() {
         val company = company("share-gift", "REVSHARE_DEPOSIT", "0")
-        register(Facts.register(1055, "partner:share-gift", mapOf("click_id" to "s1")))
+        register(Facts.register(1055, "share-gift", mapOf("click_id" to "s1")))
         postbacks.dispatched.clear()
 
         invoice(Facts.invoice(id = 821, playerId = 1055, amount = uah("400")))
@@ -687,7 +688,7 @@ class AccrualTest : IntegrationTest() {
     @Test
     fun `a REVSHARE_TURNOVER of 0 percent counts turnover with no ledger line, and a rollback takes back the turnover alone`() {
         val company = company("spins-gift", "REVSHARE_TURNOVER", "0")
-        register(Facts.register(1060, "partner:spins-gift"))
+        register(Facts.register(1060, "spins-gift"))
 
         spin(Facts.spin(id = 901, playerId = 1060, type = "PLACE", realAmount = uah("200")))
         bet(Facts.bet(id = 951, playerId = 1060, type = "BET", realAmount = uah("400")))
@@ -720,8 +721,8 @@ class AccrualTest : IntegrationTest() {
     fun `a share that rounds to nothing earns nothing and writes no ledger line`() {
         company("share", "REVSHARE_DEPOSIT", "12.5")
         company("spins", "REVSHARE_TURNOVER", "5")
-        register(Facts.register(1065, "partner:share"))
-        register(Facts.register(1066, "partner:spins"))
+        register(Facts.register(1065, "share"))
+        register(Facts.register(1066, "spins"))
 
         // 40 nano UAH is one nano USDT: 12.5% and 5% of it are under half a nano.
         invoice(Facts.invoice(id = 831, playerId = 1065, amount = 40))

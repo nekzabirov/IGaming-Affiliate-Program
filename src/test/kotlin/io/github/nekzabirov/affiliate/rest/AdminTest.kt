@@ -43,7 +43,7 @@ class AdminTest : IntegrationTest() {
         assertThat(first["status"].asString()).isEqualTo("IN_REVIEW")
         assertThat(first["owner"]["login"].asString()).isEqualTo(partner)
         assertThat(first["owner"]["active"].asBoolean()).isTrue()
-        assertThat(first["link"].asString()).isEqualTo("https://example.com/?affiliate=partner:waiting&click_id={subid}")
+        assertThat(first["link"].asString()).isEqualTo("https://example.com/?affiliate=waiting&click_id={subid}")
         assertThat(api.get("/api/admin/companies?status=ACTIVE", admin).body["items"].values().map { it["identity"].asString() })
             .containsExactly("older-active")
         assertThat(api.get("/api/admin/companies?q=${partner.uppercase()}", admin).body["total"].asLong()).isEqualTo(2)

@@ -61,7 +61,7 @@ See [Currency Conversion](Currency-Conversion).
 |---|---|---|
 | `CPA_MIN_DEPOSIT` | `10` | decimal in `PARTNER_CURRENCY`: a first deposit must reach it for CPA to pay |
 | `PAYOUT_NETWORKS` | `TRC20,ERC20,BEP20,TON` | comma-separated networks a partner may request a payout on; TRC20, ERC20, BEP20 and TON addresses are checked by format, any other network accepts 10 to 128 printable characters |
-| `SITE_URL` | `http://localhost:3000` | the brand site's origin; partner links are `<SITE_URL>/?affiliate=partner:<identity>&click_id={subid}` |
+| `SITE_URL` | `http://localhost:3000` | the brand site's origin; partner links are `<SITE_URL>/?affiliate=<identity>&click_id={subid}` |
 | `SUPPORT_TELEGRAM_URL` | empty | the support link shown in the cabinet; empty hides it |
 | `POSTBACK_SOURCE_IP` | empty | the address postbacks leave from, shown to partners whose tracker allowlists; empty hides it |
 | `PROMO_MANIFEST_URL` | empty | the promo library's catalogue (see [Branding](Branding#promo-library)); empty hides the Promo screen |

@@ -37,7 +37,7 @@ nothing in it is private to the SPA. Metrics and health are on the management po
 
 | Method and path | Body | Answer |
 |---|---|---|
-| `GET /api/config` | | `currency`, `supportUrl`, `siteUrl`, `tagPrefix` (`partner:`), `clickParam` (`click_id`), `cpaMinDeposit`, `payoutNetworks`, `postbackSourceIp`, `postbackTypes`, `promoManifestUrl` |
+| `GET /api/config` | | `currency`, `supportUrl`, `siteUrl`, `clickParam` (`click_id`), `cpaMinDeposit`, `payoutNetworks`, `postbackSourceIp`, `postbackTypes`, `promoManifestUrl` |
 | `POST /api/auth/register` | `{"login", "password"}` | 201, the account (as `/api/me`), and the session cookie |
 | `POST /api/auth/login` | `{"login", "password"}` | the account and the session cookie |
 | `POST /api/auth/logout` | | 204, the session ends |

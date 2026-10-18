@@ -18,9 +18,9 @@ class CompanyTest : IntegrationTest() {
         assertThat(created.body["type"].asString()).isEqualTo("CPA")
         assertThat(created.body["amount"].asString()).isEqualTo("25.5")
         assertThat(created.body["status"].asString()).isEqualTo("IN_REVIEW")
-        assertThat(created.body["tag"].asString()).isEqualTo("partner:summer_promo")
+        assertThat(created.body["tag"].asString()).isEqualTo("summer_promo")
         assertThat(created.body["link"].asString())
-            .isEqualTo("https://example.com/?affiliate=partner:summer_promo&click_id={subid}")
+            .isEqualTo("https://example.com/?affiliate=summer_promo&click_id={subid}")
         assertThat(created.body["stats"]["registrations"].asLong()).isZero()
         assertThat(created.body["stats"]["earned"].asString()).isEqualTo("0")
 

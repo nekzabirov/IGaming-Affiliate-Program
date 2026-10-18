@@ -80,7 +80,7 @@ Schema: `docs/events/register.events.schema.json`.
   "playerId": 1001,
   "data": {
     "id": 1001,
-    "affiliateTag": "partner:summer",
+    "affiliateTag": "summer",
     "affiliateAttribution": { "click_id": "8f3k2a" },
     "country": "DE",
     "createdAt": "2026-10-01T09:15:00Z"
@@ -91,20 +91,20 @@ Schema: `docs/events/register.events.schema.json`.
 | Field | Type | Required | Meaning |
 |---|---|---|---|
 | `id` | integer | yes | The player id; must equal `playerId`. |
-| `affiliateTag` | string or null | no | What the brand site stored from `?affiliate=`. `partner:<identity>` (prefix in any letter case, identity read in lower case) names a company of this program. |
+| `affiliateTag` | string or null | no | What the brand site stored from `?affiliate=`. The company's identity itself, no prefix, read in any letter case: every tag is looked up among the companies. |
 | `affiliateAttribution` | object of strings, or null | no | Free-form keys the site stored at sign-up. `click_id` is the partner tracker's click id. Kept whole on the referral. |
 | `country` | string or null | no | ISO 3166-1 alpha-2, any letter case; anything that is not two letters is stored as unknown. |
 | `createdAt` | ISO-8601 string | yes | Registration time; its UTC day is the day the registration counts on. |
 
 What happens:
 
-- Tag `partner:<identity>` of an **ACTIVE** company whose partner is not blocked: the player becomes that
+- A tag that is the identity of an **ACTIVE** company whose partner is not blocked: the player becomes that
   company's **referral**, once and for good (a `referral` row with the company, `click_id` if it matches
   `^[A-Za-z0-9._~-]{1,128}$`, the attribution, country and registration time), and a `REGISTRATION` postback is
   sent to the company's trackers after the commit.
-- Tag `partner:<identity>` of an unknown company, one not ACTIVE, or of a blocked partner: recorded as **refused**
-  (the key `register:<playerId>` with no company), so no later event attributes the player either.
-- Any other tag, or none: acknowledged, nothing is written.
+- The identity of a company not ACTIVE, or of a blocked partner: recorded as **refused** (the key
+  `register:<playerId>` with no company), so no later event attributes the player either.
+- A tag that names no company, or none: acknowledged, nothing is written.
 
 ## invoice.events
 
@@ -123,7 +123,7 @@ Schema: `docs/events/invoice.events.schema.json`.
     "updatedAt": "2026-10-01T09:20:00Z",
     "player": {
       "id": 1001,
-      "affiliateTag": "partner:summer",
+      "affiliateTag": "summer",
       "affiliateAttribution": { "click_id": "8f3k2a" },
       "country": "DE",
       "createdAt": "2026-10-01T09:15:00Z"
@@ -320,7 +320,7 @@ and approve it as an admin first, or the events are acknowledged without effect.
 ## Log lines
 
 INFO: `accrual.referral_created` (with `via`: `register.events`, or `invoice.events` for a deposit that came
-first), `accrual.referral_ignored` and `accrual.deposit_ignored` (with `reason`: `unknown_company`,
+first), `accrual.referral_ignored` and `accrual.deposit_ignored` (with `reason`:
 `company_not_active`, `owner_blocked`), `accrual.deposit_counted`, `accrual.stake_reversed`. DEBUG (`LOG_LEVEL=DEBUG`):
 `accrual.stake_counted`, `accrual.stake_ignored`, `accrual.stake_voided`, `accrual.duplicate`. ERROR:
 `broker.handler_failed`.

@@ -3,7 +3,7 @@ package io.github.nekzabirov.affiliate.model
 import java.math.BigDecimal
 import java.time.Instant
 
-/** A partner's campaign; its [identity] is the player's affiliate tag `partner:<identity>`. */
+/** A partner's campaign; its [identity] is the player's affiliate tag itself. */
 data class Company(
     val id: Long,
 

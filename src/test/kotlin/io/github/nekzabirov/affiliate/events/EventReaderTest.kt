@@ -15,8 +15,8 @@ class EventReaderTest {
 
     @Test
     fun `the documented payloads read, everything the app does not model ignored`() {
-        val player = read(Facts.register(2, "partner:summer", mapOf("click_id" to "8f3k2a")), RegisterEvent::class.java) { it.id }
-        assertThat(player).isEqualTo(Envelope(2, RegisterEvent(2, "partner:summer", mapOf("click_id" to "8f3k2a"), "UA", Instant.parse(Facts.AT))))
+        val player = read(Facts.register(2, "summer", mapOf("click_id" to "8f3k2a")), RegisterEvent::class.java) { it.id }
+        assertThat(player).isEqualTo(Envelope(2, RegisterEvent(2, "summer", mapOf("click_id" to "8f3k2a"), "UA", Instant.parse(Facts.AT))))
 
         val invoice = read(Facts.invoice(id = 1, playerId = 2, amount = 100_000_000_000), InvoiceEvent::class.java) { it.player.id }.data
         val owner = InvoiceEvent.Player(2, "referal:1", mapOf("fbc" to "fb.1.1759300000000.IwAR2xYz"), "UA", Instant.parse(Facts.AT))
@@ -66,7 +66,7 @@ class EventReaderTest {
     fun `the examples in docs events read as the documentation says`() {
         val examples = Path.of("docs", "events", "examples")
         val register = read(Files.readString(examples.resolve("register.events.json")), RegisterEvent::class.java) { it.id }
-        assertThat(register.data.affiliateTag).isEqualTo("partner:summer")
+        assertThat(register.data.affiliateTag).isEqualTo("summer")
         val invoice = read(Files.readString(examples.resolve("invoice.events.json")), InvoiceEvent::class.java) { it.player.id }
         assertThat(invoice.data.type to invoice.data.status).isEqualTo(InvoiceEvent.Type.CREDIT to InvoiceEvent.Status.SUCCESS)
         val spin = read(Files.readString(examples.resolve("spin.events.json")), SpinEvent::class.java) { it.round.playerId }
@@ -129,7 +129,7 @@ class EventReaderTest {
 
     @Test
     fun `a playerId that is not the player inside data is a malformed fact`() {
-        val register = Facts.register(7, "partner:summer").replaceFirst("\"playerId\": 7", "\"playerId\": 8")
+        val register = Facts.register(7, "summer").replaceFirst("\"playerId\": 7", "\"playerId\": 8")
         val invoice = Facts.invoice(id = 1, playerId = 7, amount = 1).replaceFirst("\"playerId\": 7", "\"playerId\": 8")
         val spin = Facts.spin(1, 7, "PLACE", 1).replaceFirst("\"playerId\": 7", "\"playerId\": 8")
         val bet = Facts.bet(1, 7, "BET", 1).replaceFirst("\"playerId\": 7", "\"playerId\": 8")

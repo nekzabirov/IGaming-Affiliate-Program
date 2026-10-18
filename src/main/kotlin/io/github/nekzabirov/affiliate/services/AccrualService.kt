@@ -62,7 +62,7 @@ class AccrualService(
     private val cpaMinDeposit = Money.toNano(properties.cpaMinDeposit)
 
     /**
-     * A new player: one who arrived with `partner:<identity>` of an ACTIVE company of an active partner becomes
+     * A new player: one whose affiliate tag is the identity of an ACTIVE company of an active partner becomes
      * that company's referral, with the tracker's click id from the attribution, and the trackers hear of a lead.
      */
     fun register(player: Registration) {
@@ -222,19 +222,20 @@ class AccrualService(
     }
 
     /**
-     * Decides, once per player, whether a partner brought them; the `register:<player>` fact is that decision. A
-     * `partner:` tag it refuses (no such company, one not ACTIVE, a blocked partner) is recorded as refused too, so
-     * a company approved later never claims the player through a deposit. Any other tag is not this programme's
-     * and leaves nothing behind. [via] names the route that decided, for the log.
+     * Decides, once per player, whether a partner brought them; the `register:<player>` fact is that decision. Every
+     * tag is looked up among the companies, whoever set it. The tag of a company it refuses (one not ACTIVE, a
+     * blocked partner) is recorded as refused too, so a company approved later never claims the player through a
+     * deposit. A tag that names no company is not this programme's and leaves nothing behind. [via] names the route
+     * that decided, for the log.
      */
     private fun attribute(player: Registration, via: String) {
         val playerId = player.playerId
         val identity = identityOf(player.affiliateTag) ?: return
         val key = REGISTER + playerId
         val day = dayOf(player.registeredAt)
-        val owned = companies.findWithOwner(identity)
-        val refusal = if (owned == null) UNKNOWN_COMPANY else refusal(owned)
-        if (owned == null || refusal != null) {
+        val owned = companies.findWithOwner(identity) ?: return
+        val refusal = refusal(owned)
+        if (refusal != null) {
             if (facts.insert(factOf(key, null, playerId, day))) {
                 ignored(log.atInfo(), "accrual.referral_ignored", playerId, identity, refusal)
             } else {
@@ -376,8 +377,6 @@ class AccrualService(
 
         private const val TURNOVER_SOURCE = "turnover:"
 
-        private const val UNKNOWN_COMPANY = "unknown_company"
-
         private const val COMPANY_NOT_ACTIVE = "company_not_active"
 
         private const val OWNER_BLOCKED = "owner_blocked"
@@ -390,9 +389,8 @@ class AccrualService(
 
         private val log = LoggerFactory.getLogger(AccrualService::class.java)
 
-        /** `partner:<identity>`, the prefix in any letter case, gives the identity; any other tag is not this programme's. */
-        private fun identityOf(tag: String?): String? =
-            tag?.takeIf { it.startsWith(AffiliateTag.PREFIX, ignoreCase = true) }?.substring(AffiliateTag.PREFIX.length)?.lowercase()
+        /** The tag is the identity, read in any letter case; a blank one names nobody. */
+        private fun identityOf(tag: String?): String? = tag?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }
 
         private fun countryCode(country: String?): String? = country?.uppercase()?.takeIf { COUNTRY.matches(it) }
 

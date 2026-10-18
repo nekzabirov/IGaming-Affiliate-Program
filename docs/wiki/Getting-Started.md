@@ -30,12 +30,12 @@ Requirements: Docker with Compose v2. The first build compiles the app (Node 22 
    Reload the page: the Admin section appears.
 3. **Create a company** under Companies: identity `summer`, CPA, amount `25`. It starts `IN_REVIEW`.
 4. **Approve it** under Admin, Review queue: set it ACTIVE. Its partner link is
-   `http://localhost:3000/?affiliate=partner:summer&click_id={subid}` (`SITE_URL` is the brand site).
+   `http://localhost:3000/?affiliate=summer&click_id={subid}` (`SITE_URL` is the brand site).
 5. **Publish the sample events** (bash and curl):
 
        scripts/publish-sample-events.sh
 
-   They register player 1001 with the tag `partner:summer`, a 50 USDT deposit, a 2 USDT casino stake and a
+   They register player 1001 with the tag `summer`, a 50 USDT deposit, a 2 USDT casino stake and a
    10 USDT sportsbook stake. The dashboard now shows one registration and one first deposit, and the balance is
    25 USDT: the CPA, paid because the first deposit reached `CPA_MIN_DEPOSIT` (10).
 6. **Request a payout** under Payouts, then mark it paid as described in [Administration](Administration).

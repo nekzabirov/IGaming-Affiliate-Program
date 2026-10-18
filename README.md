@@ -9,6 +9,8 @@ payouts, driven purely by events.**
 [![Kotlin](https://img.shields.io/badge/language-Kotlin-7F52FF.svg?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![CI](https://github.com/nekzabirov/IGaming-Affiliate-Program/actions/workflows/ci.yml/badge.svg)](https://github.com/nekzabirov/IGaming-Affiliate-Program/actions/workflows/ci.yml)
 
+**Live example:** [partner.prematch.win](https://partner.prematch.win/)
+
 </div>
 
 ## Why
@@ -103,7 +105,7 @@ works.
 
 | Exchange (env, default) | Routing key | Acted on | Acknowledged without effect |
 |---|---|---|---|
-| player events exchange (`PAM_EXCHANGE`, `pam.events`) | `register.events` | a player whose `affiliateTag` is `partner:<identity>` of an active company | any other tag |
+| player events exchange (`PAM_EXCHANGE`, `pam.events`) | `register.events` | a player whose `affiliateTag` is the identity of an active company | a tag that names no company |
 | player events exchange | `invoice.events` | `type` `CREDIT` with `status` `SUCCESS` and `amount` > 0 | other types and statuses |
 | casino events exchange (`CASINO_EXCHANGE`, `casino.events`) | `spin.events` | `PLACE` (stake), `ROLLBACK` of a `PLACE` | `SETTLE`, other types |
 | casino events exchange | `bet.events` | `BET` (stake), `ROLLBACK` of a `BET` | `WIN`, other types |
@@ -219,4 +221,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 [Apache License 2.0](LICENSE). Bundled fonts are under the SIL Open Font License 1.1; see [NOTICE](NOTICE).
 
-Used in production at [1638.cloud](https://1638.cloud).
+Used in production at [1638.cloud](https://1638.cloud); see it live at [partner.prematch.win](https://partner.prematch.win/).

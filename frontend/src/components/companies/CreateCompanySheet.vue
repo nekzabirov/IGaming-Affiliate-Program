@@ -19,7 +19,7 @@ const open = defineModel<boolean>('open', { required: true })
 
 const emit = defineEmits<{ created: [Company] }>()
 
-const { siteUrl, tagPrefix, clickParam, currency, cpaMinDeposit } = config()
+const { siteUrl, clickParam, currency, cpaMinDeposit } = config()
 
 const form = reactive({ identity: '', type: 'CPA' as CompanyType, amount: '' })
 
@@ -53,7 +53,7 @@ watch(
   () => (errors.amount = null),
 )
 
-const tag = computed(() => `${tagPrefix}${form.identity || 'your-identity'}`)
+const tag = computed(() => form.identity || 'your-identity')
 
 const link = computed(() => partnerLink(siteUrl, tag.value, clickParam, '{subid}'))
 

@@ -56,7 +56,7 @@ class EventFlowTest : IntegrationTest() {
         admin.declareQueue(other)
         admin.declareBinding(BindingBuilder.bind(other).to(TopicExchange(PLAYER_EXCHANGE)).with("invoice.events"))
         try {
-            publish(PLAYER_EXCHANGE, "register.events", Facts.register(3101, "partner:flow-replay"))
+            publish(PLAYER_EXCHANGE, "register.events", Facts.register(3101, "flow-replay"))
             eventually { assertThat(count("SELECT count(*) FROM referral")).isEqualTo(1) }
 
             // The currency service refuses the deposit twice: it dies, is moved back while the cause lasts, and dies again.
@@ -92,8 +92,8 @@ class EventFlowTest : IntegrationTest() {
         val turnover = insertCompany("flow-turn", "REVSHARE_TURNOVER", "5", owner)
         val tracker = insertPostback(cpa, "https://${FakeDns.INTERNAL}/k1/postback")
 
-        publish(PLAYER_EXCHANGE, "register.events", Facts.register(3001, "partner:flow-cpa", mapOf("click_id" to "k1")), requestId = "flow-1")
-        publish(PLAYER_EXCHANGE, "register.events", Facts.register(3002, "partner:flow-turn"))
+        publish(PLAYER_EXCHANGE, "register.events", Facts.register(3001, "flow-cpa", mapOf("click_id" to "k1")), requestId = "flow-1")
+        publish(PLAYER_EXCHANGE, "register.events", Facts.register(3002, "flow-turn"))
         eventually { assertThat(count("SELECT count(*) FROM referral")).isEqualTo(2) }
         // The lead went to the company's tracker after the commit, and the guard refused its internal address.
         assertThat(awaitAttempt(tracker)).isEqualTo(null to "Blocked address")
@@ -137,7 +137,7 @@ class EventFlowTest : IntegrationTest() {
         val login = uniqueLogin("otto")
         api.register(login)
         insertCompany("flow-other", "REVSHARE_TURNOVER", "5", accountId(login))
-        publish(PLAYER_EXCHANGE, "register.events", Facts.register(3201, "partner:flow-other"))
+        publish(PLAYER_EXCHANGE, "register.events", Facts.register(3201, "flow-other"))
         eventually { assertThat(count("SELECT count(*) FROM referral")).isEqualTo(1) }
 
         val deposit = nano("400")

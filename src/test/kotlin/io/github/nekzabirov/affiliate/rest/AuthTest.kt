@@ -19,7 +19,6 @@ class AuthTest : IntegrationTest() {
         assertThat(reply.status).isEqualTo(200)
         assertThat(reply.body["currency"].asString()).isEqualTo("USDT")
         assertThat(reply.body["siteUrl"].asString()).isEqualTo("https://example.com")
-        assertThat(reply.body["tagPrefix"].asString()).isEqualTo("partner:")
         assertThat(reply.body["clickParam"].asString()).isEqualTo("click_id")
         assertThat(reply.body["cpaMinDeposit"].asString()).isEqualTo("10")
         assertThat(reply.body["payoutNetworks"].values().map { it.asString() }).containsExactly("TRC20", "ERC20", "BEP20", "TON")

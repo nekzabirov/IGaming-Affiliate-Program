@@ -32,7 +32,7 @@
             "string",
             "null"
           ],
-          "description": "The affiliate tag the brand site stored from `?affiliate=`. `partner:<identity>` (prefix in any letter case, identity read in lower case) names a company of this program; any other value, null or absence is another program's player and is acknowledged without effect."
+          "description": "The affiliate tag the brand site stored from `?affiliate=`. The company's identity itself, with no prefix, read in any letter case: every tag is looked up among the companies, and one that names no company, null or absence is acknowledged without effect."
         },
         "affiliateAttribution": {
           "type": [

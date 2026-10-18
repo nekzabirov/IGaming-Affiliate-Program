@@ -11,8 +11,6 @@ data class ConfigResponse(
 
     val siteUrl: String,
 
-    val tagPrefix: String,
-
     val clickParam: String,
 
     val cpaMinDeposit: String,

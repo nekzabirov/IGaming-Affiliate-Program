@@ -17,7 +17,6 @@ class ConfigController(private val properties: AppProperties) {
         currency = properties.partnerCurrency,
         supportUrl = properties.supportUrl,
         siteUrl = properties.siteOrigin,
-        tagPrefix = AffiliateTag.PREFIX,
         clickParam = AffiliateTag.CLICK_PARAM,
         cpaMinDeposit = Money.format(properties.cpaMinDeposit),
         payoutNetworks = properties.payoutNetworks,

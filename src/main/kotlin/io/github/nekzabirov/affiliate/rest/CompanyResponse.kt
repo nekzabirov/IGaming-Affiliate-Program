@@ -43,7 +43,7 @@ data class CompanyResponse(
                 type = company.type.name,
                 amount = Money.format(company.amount),
                 status = company.status.name,
-                tag = AffiliateTag.of(company.identity),
+                tag = company.identity,
                 link = AffiliateTag.link(siteOrigin, company.identity),
                 createdAt = company.createdAt,
                 stats = Totals(
