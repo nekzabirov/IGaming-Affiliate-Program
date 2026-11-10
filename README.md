@@ -9,8 +9,6 @@ payouts, driven purely by events.**
 [![Kotlin](https://img.shields.io/badge/language-Kotlin-7F52FF.svg?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![CI](https://github.com/nekzabirov/IGaming-Affiliate-Program/actions/workflows/ci.yml/badge.svg)](https://github.com/nekzabirov/IGaming-Affiliate-Program/actions/workflows/ci.yml)
 
-**Live example:** [partner.prematch.win](https://partner.prematch.win/)
-
 </div>
 
 ## Why
@@ -221,4 +219,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 [Apache License 2.0](LICENSE). Bundled fonts are under the SIL Open Font License 1.1; see [NOTICE](NOTICE).
 
-Used in production at [1638.cloud](https://1638.cloud); see it live at [partner.prematch.win](https://partner.prematch.win/).
+Used in production at [1638.cloud](https://1638.cloud).
